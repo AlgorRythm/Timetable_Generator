@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <unordered_map>
 using namespace std;
 
 
@@ -15,7 +16,15 @@ public:
 	struct CourseNumber {
 		string basic_number, division;
 		CourseNumber() :CourseNumber(string(), string()) {}
+		CourseNumber(string _origin_number) { auto _c_num = util::Split(_origin_number, util::Except, regex(R"(-)")); basic_number = _c_num[0]; division = _c_num[1]; }
 		CourseNumber(string _basic_number, string _division) :basic_number(_basic_number), division(_division) {}
+		bool operator==(const CourseNumber& _other) const { return basic_number == _other.basic_number && division == _other.division; }
+	};
+
+	struct CourseNumberHash {
+		auto operator()(const CourseNumber& _cn) const {
+			return hash<string>()(_cn.basic_number) ^ hash<string>()(_cn.division);
+		}
 	};
 
 	struct LectureTime {
@@ -66,16 +75,27 @@ class CourseTable
 public: enum InitType { LoadSavedTable, CreateNewTable };	// { 기존 데이터를 불러오기, 새로운 데이터 만들기 }
 private:
 	vector<Course> _Course_List;
-	vector<vector<int>> _Unconflict_Course;
+	vector<vector<int>> _Course_Adjacent_List;
+	vector<vector<bool>> _Course_Adjacent_Matrix;
+	unordered_map<Course::CourseNumber, int, Course::CourseNumberHash> _CourseNumber_To_CourseIndex;
 
 
 public:
-	CourseTable(InitType _init_type = CreateNewTable) :_Course_List(vector<Course>()), _Unconflict_Course(vector<vector<int>>()) { _init_type == LoadSavedTable ? Load_Saved_Table() : (Construct_List(), Construct_Adjacent_List()); }
-	~CourseTable() { _Course_List.clear(); _Unconflict_Course.clear(); }
+	CourseTable(InitType _init_type = CreateNewTable) :_Course_List(vector<Course>()), _Course_Adjacent_List(vector<vector<int>>()) { _init_type == LoadSavedTable ? Load_Saved_Table() : (Construct_List(), Construct_Adjacent_List()); }
+	~CourseTable() { _Course_List.clear(); _Course_Adjacent_List.clear(); }
 
-	vector<int>& operator[](int _course_number) { return _Unconflict_Course[_course_number]; }
-	Course& Get_Course(int _course_number) { return _Course_List[_course_number]; }
-	vector<int>& Get_Unconflict_Course(int _course_number) { return _Unconflict_Course[_course_number]; }
+	int Get_Course_Index(Course::CourseNumber _course_number) { return _CourseNumber_To_CourseIndex[_course_number]; }
+
+	vector<int>& operator[](int _course_index) { return _Course_Adjacent_List[_course_index]; }													// Course 인덱스로 Unconflict Course찾기
+	vector<int>& operator[](Course::CourseNumber _course_number) { return _Course_Adjacent_List[Get_Course_Index(_course_number)]; }				// 학수번호로 Unconflict Course찾기
+	vector<int>& Get_Unconflict_Course(int _course_index) { return _Course_Adjacent_List[_course_index]; }											// Course 인덱스로 Unconflict Course찾기
+	vector<int>& Get_Unconflict_Course(Course::CourseNumber _course_number) { return _Course_Adjacent_List[Get_Course_Index(_course_number)]; }	// 학수번호로 Unconflict Course찾기
+
+	Course& Get_Course(int _course_index) { return _Course_List[_course_index]; }											// Course 인덱스로 Course찾기				
+	Course& Get_Course(Course::CourseNumber _course_number) { return _Course_List[Get_Course_Index(_course_number)]; }		// 학수번호로 Course찾기
+
+	bool Is_Conflict(int _course_index1, int _course_index2) { return !_Course_Adjacent_Matrix[_course_index1][_course_index2]; }		// 두 과목이 충돌하는 지 확인
+	bool Is_Conflict(Course::CourseNumber _course_number1, Course::CourseNumber _course_number2) { return !_Course_Adjacent_Matrix[Get_Course_Index(_course_number1)][Get_Course_Index(_course_number2)]; }
 
 
 private:
@@ -86,15 +106,25 @@ private:
 			auto _course_number = Course::CourseNumber(_file_line[1], _file_line[2]);
 			auto _lecture_times = vector<Course::LectureTime>();
 			for (int i = 6; i < _file_line.size(); i += 3) _lecture_times.push_back(Course::LectureTime(_file_line[i], stoi(_file_line[i + 1]), stoi(_file_line[i + 2])));
+			_CourseNumber_To_CourseIndex.insert({ _course_number, _Course_List.size() });
 			_Course_List.push_back(Course(_file_line[0], _course_number, _file_line[3], stoi(_file_line[4]), _file_line[5], _lecture_times));
 		}
 		util::BroadCast("\rCourse List 불러오기 완료!!\n");
 
 		util::BroadCast("Course Table 불러오는 중...");
+		_Course_Adjacent_List.reserve(_Course_List.size()); for (auto& _row : _Course_Adjacent_List) _row.reserve(_Course_List.size());
+		_Course_Adjacent_Matrix.reserve(_Course_List.size()); for (auto& _row : _Course_Adjacent_Matrix) _row.reserve(_Course_List.size());
+
 		for (auto& _file_line : CsvManager::Read_Csv("./Documents/unconflict_course.csv", CsvManager::Except, regex(R"(,)"))) {
-			_Unconflict_Course.push_back(vector<int>());
-			for (auto& _idx : _file_line) _Unconflict_Course.back().push_back(stoi(_idx));
+			_Course_Adjacent_List.push_back(vector<int>());
+			for (auto& _idx : _file_line) _Course_Adjacent_List.back().push_back(stoi(_idx));
 		}
+
+		for (auto& _file_line : CsvManager::Read_Csv("./Documents/course_adjacent_matrix.csv", CsvManager::Except, regex(R"(,)"))) {
+			_Course_Adjacent_List.push_back(vector<int>());
+			for (auto& _idx : _file_line) _Course_Adjacent_Matrix.back().push_back(stoi(_idx));
+		}
+
 		util::BroadCast("\rCourse Table 불러오기 완료!!\n\n");
 	}
 
@@ -115,6 +145,7 @@ private:
 					for (auto& _block : util::Split(_time_part, util::Contain, regex(R"(\d{1,})"))) _lecture_day.push_back(_block);
 					_lecture_times.push_back(Course::LectureTime(_lecture_day[0], stoi(_lecture_day[5]) * 60 + stoi(_lecture_day[6]), stoi(_lecture_day[7]) * 60 + stoi(_lecture_day[8])));
 				}
+				_CourseNumber_To_CourseIndex.insert({ Course::CourseNumber(_course_number[0], _course_number[1]), _Course_List.size() });
 				_Course_List.push_back(Course(_file_line[0], Course::CourseNumber(_course_number[0], _course_number[1]), _course_name, stoi(_file_line[3]), _file_line[4], _lecture_times));
 			}
 		};
@@ -135,13 +166,20 @@ private:
 			return false;
 		};
 
-		_Unconflict_Course.assign(_Course_List.size(), vector<int>());
+		_Course_Adjacent_List.assign(_Course_List.size(), vector<int>());
+		_Course_Adjacent_Matrix.assign(_Course_List.size(), vector<bool>(_Course_List.size(), false));
+
 		for (int i = 0; i < _Course_List.size(); i++) {
 			for (int j = i + 1; j < _Course_List.size(); j++) {
-				if (!_Is_Conflict(_Course_List[i], _Course_List[j])) { _Unconflict_Course[i].push_back(j); _Unconflict_Course[j].push_back(i); }
+				if (!_Is_Conflict(_Course_List[i], _Course_List[j])) {
+					_Course_Adjacent_List[i].push_back(j);
+					_Course_Adjacent_List[j].push_back(i);
+					_Course_Adjacent_Matrix[i][j] = _Course_Adjacent_Matrix[j][i] = true;
+				}
 			}
 		}
-		CsvManager::Write_Csv("./Documents/unconflict_course.csv", _Unconflict_Course);
+		CsvManager::Write_Csv("./Documents/course_adjacent_list.csv", _Course_Adjacent_List);
+		CsvManager::Write_Csv("./Documents/course_adjacent_matrix.csv", _Course_Adjacent_List);
 		util::BroadCast("\rCourse Table 생성 완료...\n\n");
 	}
 
@@ -149,7 +187,7 @@ private:
 public:
 	size_t Size() { return _Course_List.size(); }	// Course 개수를 return
 
-	vector<Course> Get_Course_List() { return _Course_List; }	// Course List return
+	vector<Course> Get_Course_List() { return _Course_List; }	// return Course List 
 	
-	vector<vector<int>> Get_Course_Adjacent_List() { return _Unconflict_Course; }	// Adjacent List for Unconflict Course return
+	vector<vector<int>> Get_Course_Adjacent_List() { return _Course_Adjacent_List; }	// return Adjacent List
 };

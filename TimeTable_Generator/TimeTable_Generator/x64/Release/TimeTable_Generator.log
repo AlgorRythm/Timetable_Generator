@@ -1,8 +1,25 @@
 ﻿  Main.cpp
   The contents of <filesystem> are available only with C++17 or later.
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.32.31326\include\utility(190,48): warning C4267: '초기화 중': 'size_t'에서 '_Ty2'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+          with
+          [
+              _Ty2=int
+          ]
+E:\OneDrive - dongguk.edu\DGU_Unv\2022\3-2학기\컴퓨터알고리즘과실습\팀 프로젝트\algor_project\TimeTable_Generator\TimeTable_Generator\Core\Course.h(109): message : 컴파일되는 함수 템플릿 인스턴스화 'std::pair<const Course::CourseNumber,int>::pair<Course::CourseNumber&,unsigned __int64,0>(_Other1,_Other2 &&) noexcept(false)'에 대한 참조를 확인하세요.
+          with
+          [
+              _Other1=Course::CourseNumber &,
+              _Other2=unsigned __int64
+          ]
+E:\OneDrive - dongguk.edu\DGU_Unv\2022\3-2학기\컴퓨터알고리즘과실습\팀 프로젝트\algor_project\TimeTable_Generator\TimeTable_Generator\Core\Course.h(109): message : 컴파일되는 함수 템플릿 인스턴스화 'std::pair<const Course::CourseNumber,int>::pair<Course::CourseNumber&,unsigned __int64,0>(_Other1,_Other2 &&) noexcept(false)'에 대한 참조를 확인하세요.
+          with
+          [
+              _Other1=Course::CourseNumber &,
+              _Other2=unsigned __int64
+          ]
   코드를 생성하고 있습니다.
-  0 of 1467 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+  3 of 1791 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+    8 functions had inline decision re-evaluated but remain unchanged
   코드를 생성했습니다.
   TimeTable_Generator.vcxproj -> E:\OneDrive - dongguk.edu\DGU_Unv\2022\3-2학기\컴퓨터알고리즘과실습\팀 프로젝트\algor_project\TimeTable_Generator\x64\Release\TimeTable_Generator.exe

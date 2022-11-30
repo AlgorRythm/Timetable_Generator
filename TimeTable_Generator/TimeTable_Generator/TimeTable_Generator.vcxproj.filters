@@ -38,5 +38,14 @@
     <ClInclude Include="Core\Course.h">
       <Filter>소스 파일\Core</Filter>
     </ClInclude>
+    <ClInclude Include="Module\BccCleaning\Graph.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Module\BccCleaning\TimeTable3.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Module\BccCleaning\PriorityValue.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
