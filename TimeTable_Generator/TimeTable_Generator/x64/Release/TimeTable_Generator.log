@@ -1,7 +1,7 @@
 ﻿  Main.cpp
   코드를 생성하고 있습니다.
-  4 of 1463 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    3 functions had inline decision re-evaluated but remain unchanged
+  1446 of 1467 functions (98.6%) were compiled, the rest were copied from previous compilation.
+    4 functions were new in current compilation
+    2 functions had inline decision re-evaluated but remain unchanged
   코드를 생성했습니다.
-  TimeTable_Generator.vcxproj -> E:\OneDrive - dongguk.edu\DGU_Unv\2022\3-2학기\컴퓨터알고리즘과실습\팀 프로젝트\TimeTable_Generator\x64\Release\TimeTable_Generator.exe
+  TimeTable_Generator.vcxproj -> E:\OneDrive - dongguk.edu\DGU_Unv\2022\3-2학기\컴퓨터알고리즘과실습\팀 프로젝트\algor_project\TimeTable_Generator\x64\Release\TimeTable_Generator.exe

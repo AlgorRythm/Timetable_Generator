@@ -27,6 +27,9 @@ int main()
 	cout << "\n\n";
 
 
+	// CourseTable 내의 리스트, 인접 리스트를 직접 가져와서 쓰고 싶다면
+	vector<Course> course_list = course_table.Get_Course_List();				// 멤버함수로 강의 리스트를 가져옴
+	vector<vector<int>> course_adj = course_table.Get_Course_Adjacent_List();	// 맴버함수로 강의 인접 리스트를 가져옴(서로 겹치지 않는 강의 정보)
 
 	return 0;
 }

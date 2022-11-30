@@ -147,5 +147,9 @@ private:
 
 
 public:
-	size_t Size() { return _Course_List.size(); }	// Course 개수를 return	
+	size_t Size() { return _Course_List.size(); }	// Course 개수를 return
+
+	vector<Course> Get_Course_List() { return _Course_List; }	// Course List return
+	
+	vector<vector<int>> Get_Course_Adjacent_List() { return _Unconflict_Course; }	// Adjacent List for Unconflict Course return
 };
