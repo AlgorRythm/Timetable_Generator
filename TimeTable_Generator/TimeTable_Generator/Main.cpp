@@ -1,5 +1,5 @@
 
-#include "Course.h"
+#include "Core/Course.h"
 
 int main()
 {

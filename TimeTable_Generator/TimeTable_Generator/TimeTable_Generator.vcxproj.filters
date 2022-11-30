@@ -29,13 +29,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FileManager.h">
+    <ClInclude Include="Core\FileManager.h">
       <Filter>소스 파일\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Utility.h">
+    <ClInclude Include="Core\Utility.h">
       <Filter>소스 파일\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Course.h">
+    <ClInclude Include="Core\Course.h">
       <Filter>소스 파일\Core</Filter>
     </ClInclude>
   </ItemGroup>
