@@ -7,9 +7,13 @@
 #include <queue>
 #include <algorithm>
 #include <stack>
+#include <ctime>
 using namespace std;
 
 class TimeTable2 {
+private:
+    double clock_time;
+    int compare_cnt;
 public:
     int essential_num;
     int input_num;
@@ -37,8 +41,15 @@ public:
 void TimeTable2::generator(CourseTable& _course_table) {
     // INPUT
     input_data();
+    // init CNT
+    compare_cnt = 0;
+    clock_t start = clock();
     // brute-force
     brute_force(_course_table);
+    // calculate CLOCK
+    clock_t finish = clock();
+    clock_time = (double)(finish - start) / CLOCKS_PER_SEC;
+    cout << clock_time << "초" << endl;
 }
 
 // =====================================================
@@ -88,6 +99,7 @@ void TimeTable2::input_data() {
     cin >> str;
     istringstream ss4(str);
     while (getline(ss4, stringBuffer, ',')) {
+        if (stringBuffer == "-") break;
         input_courses.push_back(make_pair(stoi(stringBuffer), 4));
         input_num++;
     }
@@ -108,8 +120,10 @@ void TimeTable2::input_data() {
 // =====================================================
 bool TimeTable2::is_Table_Conflict(CourseTable& _course_table, vector<pair<int, int>>& com_courses) {
     for (int i = 0; i < com_courses.size(); i++) {
+        compare_cnt++;
         auto c1 = _course_table.Get_Course(com_courses[i].first).Get_Course_Number();
         for (int j = i+1; j < com_courses.size(); j++) {
+            compare_cnt++;
             auto c2 = _course_table.Get_Course(com_courses[j].first).Get_Course_Number();
             if (_course_table.Is_Conflict(c1, c2)) {
                 return true;
@@ -122,6 +136,7 @@ bool TimeTable2::is_Table_Conflict(CourseTable& _course_table, vector<pair<int, 
 bool TimeTable2::isMustInclude(vector<pair<int, int>>& arr) {
     int must_cnt = 0;
     for (int i = 0; i < arr.size(); i++) {
+            compare_cnt++;
         if (arr[i].second == 0) must_cnt++;
     }
     if (must_cnt == essential_num) return true;
@@ -160,6 +175,7 @@ void TimeTable2::brute_force(CourseTable& _course_table) {
             break;
     }
     cout << endl;
+    cout << "Compare CNT: " << compare_cnt << endl;
 }
 
 /**
@@ -171,6 +187,7 @@ void TimeTable2::brute_force(CourseTable& _course_table) {
  depth = 대상 배열에서 뽑을 원소를 결정하는 인덱스
  */
 void TimeTable2::Combination(vector<pair<int, int>>& cmb, int r, int index, int depth) { // depth == 점화식의 n역할
+    compare_cnt++;
     if (r == 0) { // 뽑아야할 갯수가 모두 찬 경우에는 comb 에 들어있는 값 모두 출력
         combi.push_back(cmb);
         cmb.pop_back();
