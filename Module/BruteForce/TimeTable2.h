@@ -15,6 +15,7 @@ public:
     int input_num;
     int credit;
     int table_num = 1;
+    int output_num;
     vector<pair<int, int>> input_courses;   // vector (과목번호, 선호도)
     vector<int> essential_courses;
     vector<vector<pair<int, int>>> combi;   // combi 모음
@@ -98,6 +99,8 @@ void TimeTable2::input_data() {
         input_courses.push_back(make_pair(stoi(stringBuffer), 5));
         input_num++;
     }
+    cout << "출력할 시간표 개수: ";
+    cin >> output_num;
 }
 
 // =====================================================
@@ -153,6 +156,8 @@ void TimeTable2::brute_force(CourseTable& _course_table) {
         for (int j = 0; j < result[i].size(); j++) {
             cout << "{" << _course_table.Get_Course(result[i][j].first).Get_Course_Name() << "-" << _course_table.Get_Course(result[i][j].first).Get_Course_Number().division << "} ";
         }
+        if (table_num == output_num + 1)
+            break;
     }
     cout << endl;
 }
