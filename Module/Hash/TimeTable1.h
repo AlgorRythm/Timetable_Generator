@@ -187,7 +187,7 @@ public:
 			}
 			input_courses.push_back(make_tuple(stoi(stringBuffer), 5));
 		}
-		cout << "출력할 시간표 갯수: ";
+		cout << "출력할 시간표 개수: ";
 		cin >> output_num;
 
 		input_cnt = input_courses.size();
@@ -200,7 +200,7 @@ public:
 		table_num++;
 
 		for (int i = 0; i < _accumulate_courses.size(); i++) {
-			tmp_str += _course_table.Get_Course(_accumulate_courses[i]).Get_Course_Name() + "-" + _course_table.Get_Course(_accumulate_courses[i]).Get_Course_Number().division + " ";
+			tmp_str += "{" + _course_table.Get_Course(_accumulate_courses[i]).Get_Course_Name() + "-" + _course_table.Get_Course(_accumulate_courses[i]).Get_Course_Number().division + "} ";
 		}
 		final_courses.push_back(tmp_str);
 	}
