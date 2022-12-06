@@ -24,6 +24,10 @@ public:
 	vector<int> accumulate_courses;			// 누적 과목 list
 	vector<string> final_courses;			// 최종 출력용 list
 
+	int mcnt1 = 0;	// input_courses
+	int mcnt2 = 0;	// essential_courses
+	int mcnt3 = 0;	// accumulate_courses
+	int mcnt4 = 0;	// final_courses
 
 	void generator(CourseTable& _course_table) {
 		cout << "학점: ";
@@ -42,6 +46,7 @@ public:
 		cout << "================================" << endl;
 		cout << "실행시간: " << finish - start << "ms" << endl;
 		cout << "비교횟수: " << cmp_cnt << "회" << endl;
+		cout << "메모리 사용량: " << mcnt1*sizeof(tuple<int, int>) + mcnt2*sizeof(int) + mcnt3*sizeof(int) + mcnt4*sizeof(char) << "Byte" << endl;
 	}
 
 	// main function
@@ -53,6 +58,7 @@ public:
 		// accumulate_courses 초기화
 		for (int i = 0; i < essential_cnt; i++) {
 			accumulate_courses.push_back(get<0>(input_courses[i]));
+			mcnt3++;
 			now_credit += 3;
 			essential_credit += 3;
 		}
@@ -79,6 +85,7 @@ public:
 
 			if (Is_Course_Conflict(_course_table, _accumulate_courses, nowC) == false) {
 				_accumulate_courses.push_back(get<0>(input_courses[i]));
+				mcnt3++;
 				_now_credit += 3;
 
 				if (_now_credit == credit)
@@ -135,7 +142,9 @@ public:
 				break;
 			}
 			input_courses.push_back(make_tuple(stoi(stringBuffer), 0));
+			mcnt1++;
 			essential_courses.push_back(stoi(stringBuffer));
+			mcnt2++;
 		}
 
 		cout << "1: ";
@@ -146,6 +155,7 @@ public:
 				break;
 			}
 			input_courses.push_back(make_tuple(stoi(stringBuffer), 1));
+			mcnt1++;
 		}
 
 		cout << "2: ";
@@ -156,6 +166,7 @@ public:
 				break;
 			}
 			input_courses.push_back(make_tuple(stoi(stringBuffer), 2));
+			mcnt1++;
 		}
 
 		cout << "3: ";
@@ -166,6 +177,7 @@ public:
 				break;
 			}
 			input_courses.push_back(make_tuple(stoi(stringBuffer), 3));
+			mcnt1++;
 		}
 
 		cout << "4: ";
@@ -176,6 +188,7 @@ public:
 				break;
 			}
 			input_courses.push_back(make_tuple(stoi(stringBuffer), 4));
+			mcnt1++;
 		}
 
 		cout << "5: ";
@@ -186,6 +199,7 @@ public:
 				break;
 			}
 			input_courses.push_back(make_tuple(stoi(stringBuffer), 5));
+			mcnt1++;
 		}
 		cout << "출력할 시간표 개수: ";
 		cin >> output_num;
@@ -203,6 +217,7 @@ public:
 			tmp_str += "{" + _course_table.Get_Course(_accumulate_courses[i]).Get_Course_Name() + "-" + _course_table.Get_Course(_accumulate_courses[i]).Get_Course_Number().division + "} ";
 		}
 		final_courses.push_back(tmp_str);
+		mcnt4 += tmp_str.size();
 	}
 
 	// 최종 table list를 출력하는 함수

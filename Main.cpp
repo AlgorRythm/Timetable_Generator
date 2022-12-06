@@ -15,7 +15,6 @@ void Test_TimeTable2(CourseTable& course_table) {
 	table.generator(course_table);
 }
 
-
 int main()
 {
 	CourseTable course_table;
