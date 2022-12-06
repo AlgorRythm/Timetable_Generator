@@ -23,6 +23,7 @@ public:
     vector<pair<int, int>> input_courses;   // vector (과목번호, 선호도)
     vector<int> essential_courses;
     vector<vector<pair<int, int>>> combi;   // combi 모음
+    vector<vector<pair<int, int>>> result;  // 최종 결과
 private:
     bool isVisited[10000] = { false, };
     stack<int> st;
@@ -48,8 +49,21 @@ void TimeTable2::generator(CourseTable& _course_table) {
     brute_force(_course_table);
     // calculate CLOCK
     clock_t finish = clock();
-    clock_time = (double)(finish - start) / CLOCKS_PER_SEC;
-    cout << clock_time << "초" << endl;
+    clock_time = (double)(finish - start);
+
+    // Pring OUTPUT
+    for (int i = 0; i < result.size(); i++) {
+        cout << "\n[ " << "시간표" << table_num++ << " ] ";
+        for (int j = 0; j < result[i].size(); j++) {
+            cout << "{" << _course_table.Get_Course(result[i][j].first).Get_Course_Name() << "-" << _course_table.Get_Course(result[i][j].first).Get_Course_Number().division << "} ";
+        }
+        if (table_num == output_num + 1)
+            break;
+    }
+    cout << endl;
+    cout << "Compare CNT: " << compare_cnt << endl;
+
+    cout << clock_time << "ms" << endl;
 }
 
 // =====================================================
@@ -159,23 +173,11 @@ void TimeTable2::brute_force(CourseTable& _course_table) {
 
     // 시간표 
     bool check = false;
-    vector<vector<pair<int, int>>> result;
     for (int i = 0; i < combi.size(); i++) {
         if (is_Table_Conflict(_course_table, combi[i]) == false && isMustInclude(combi[i]) == true) {
             result.push_back(combi[i]);
         }
     }
-
-    for (int i = 0; i < result.size(); i++) {
-        cout << "\n[ " << "시간표" << table_num++ << " ] ";
-        for (int j = 0; j < result[i].size(); j++) {
-            cout << "{" << _course_table.Get_Course(result[i][j].first).Get_Course_Name() << "-" << _course_table.Get_Course(result[i][j].first).Get_Course_Number().division << "} ";
-        }
-        if (table_num == output_num + 1)
-            break;
-    }
-    cout << endl;
-    cout << "Compare CNT: " << compare_cnt << endl;
 }
 
 /**
