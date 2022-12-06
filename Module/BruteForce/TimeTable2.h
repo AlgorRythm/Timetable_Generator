@@ -1,6 +1,6 @@
 #pragma once
-#include "Course.h"
-#include "Utility.h"
+#include "../../Core/Course.h"
+#include "../../Core/Utility.h"
 #include <vector>
 #include <sstream>
 #include <tuple>
@@ -42,6 +42,8 @@ public:
 void TimeTable2::generator(CourseTable& _course_table) {
     // INPUT
     input_data();
+    cout << "================================";
+
     // init CNT
     compare_cnt = 0;
     clock_t start = clock();
@@ -61,9 +63,9 @@ void TimeTable2::generator(CourseTable& _course_table) {
             break;
     }
     cout << endl;
-    cout << "Compare CNT: " << compare_cnt << endl;
-
-    cout << clock_time << "ms" << endl;
+    cout << "================================" << endl;
+    cout << "실행시간: " << clock_time << "ms" << endl;
+    cout << "비교횟수: " << compare_cnt << endl;
 }
 
 // =====================================================
@@ -80,7 +82,7 @@ void TimeTable2::input_data() {
     cout << "필수: ";
     cin >> str;
     istringstream ss0(str);
-    while (str!="-" && getline(ss0, stringBuffer, ',')) {
+    while (str != "-" && getline(ss0, stringBuffer, ',')) {
         if (stringBuffer == "-") break;
         input_courses.push_back(make_pair(stoi(stringBuffer), 0));
         input_num++;
@@ -136,7 +138,7 @@ bool TimeTable2::is_Table_Conflict(CourseTable& _course_table, vector<pair<int, 
     for (int i = 0; i < com_courses.size(); i++) {
         compare_cnt++;
         auto c1 = _course_table.Get_Course(com_courses[i].first).Get_Course_Number();
-        for (int j = i+1; j < com_courses.size(); j++) {
+        for (int j = i + 1; j < com_courses.size(); j++) {
             compare_cnt++;
             auto c2 = _course_table.Get_Course(com_courses[j].first).Get_Course_Number();
             if (_course_table.Is_Conflict(c1, c2)) {
@@ -150,7 +152,7 @@ bool TimeTable2::is_Table_Conflict(CourseTable& _course_table, vector<pair<int, 
 bool TimeTable2::isMustInclude(vector<pair<int, int>>& arr) {
     int must_cnt = 0;
     for (int i = 0; i < arr.size(); i++) {
-            compare_cnt++;
+        compare_cnt++;
         if (arr[i].second == 0) must_cnt++;
     }
     if (must_cnt == essential_num) return true;
@@ -169,7 +171,7 @@ void TimeTable2::brute_force(CourseTable& _course_table) {
 
     // 가능한 모든 조합을 생성하는 함수
     vector<pair<int, int>> cmb;
-    Combination(cmb, credit/3, 0, 0);
+    Combination(cmb, credit / 3, 0, 0);
 
     // 시간표 
     bool check = false;
@@ -195,7 +197,7 @@ void TimeTable2::Combination(vector<pair<int, int>>& cmb, int r, int index, int 
         cmb.pop_back();
     }
     else if (depth == input_courses.size()) {   // 뽑을 원소 인덱스가 대상 배열의 마지막까지 온 경우 return
-         return;
+        return;
     }
     else {
         // arr[depth] 를 뽑은 경우
