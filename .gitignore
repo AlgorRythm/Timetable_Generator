@@ -1,5 +1,6 @@
 # Testcase
 Testcase/
+.vscode/
 
 # Prerequisites
 *.d
