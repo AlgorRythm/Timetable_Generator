@@ -13,17 +13,17 @@ using namespace std;
 class Course
 {
 public:
-	struct CourseNumber {
-		string basic_number, division;
-		CourseNumber() :CourseNumber(string(), string()) {}
-		CourseNumber(string _origin_number) { auto _c_num = util::Split(_origin_number, util::Except, regex(R"(-)")); basic_number = _c_num[0]; division = _c_num[1]; }
-		CourseNumber(string _basic_number, string _division) :basic_number(_basic_number), division(_division) {}
-		bool operator==(const CourseNumber& _other) const { return basic_number == _other.basic_number && division == _other.division; }
+	struct CourseID {
+		string basic_id, division;
+		CourseID() :CourseID(string(), string()) {}
+		CourseID(string _origin_id) { auto _c_num = util::Split(_origin_id, util::Except, regex(R"(-)")); basic_id = _c_num[0]; division = _c_num[1]; }
+		CourseID(string _basic_id, string _division) :basic_id(_basic_id), division(_division) {}
+		bool operator==(const CourseID& _other) const { return basic_id == _other.basic_id && division == _other.division; }
 	};
 
-	struct CourseNumberHash {
-		auto operator()(const CourseNumber& _cn) const {
-			return hash<string>()(_cn.basic_number) ^ hash<string>()(_cn.division);
+	struct CourseIDHash {
+		auto operator()(const CourseID& _cn) const {
+			return hash<string>()(_cn.basic_id) ^ hash<string>()(_cn.division);
 		}
 	};
 
@@ -36,31 +36,32 @@ public:
 
 
 private:
-	string _Curriculum;						// êµê³¼ê³¼ì •
-	CourseNumber _Course_Number;			// í•™ìˆ˜ë²ˆí˜¸
-	string _Course_Name;					// êµê³¼ëª©ëª…
-	int _Credit;							// í•™ì 
-	string _Faculty_In_Charge;				// ë‹´ë‹¹êµìˆ˜
-	vector<LectureTime> _Lecture_Times;		// ê°•ì˜ì‹œê°„
+	string _Curriculum;						// ±³°ú°úÁ¤
+	CourseID _Course_ID;					// ÇĞ¼ö¹øÈ£
+	string _Course_Name;					// ±³°ú¸ñ¸í
+	int _Credit;							// ÇĞÁ¡
+	string _Faculty_In_Charge;				// ´ã´ç±³¼ö
+	vector<LectureTime> _Lecture_Times;		// °­ÀÇ½Ã°£
 
 
 public:
-	Course(string _curriculum, CourseNumber _course_number, string _course_name, int _credit, string _faculty_in_charge, vector<LectureTime> _lecture_days) :
-		_Curriculum(_curriculum), _Course_Number(_course_number), _Course_Name(_course_name), _Credit(_credit), _Faculty_In_Charge(_faculty_in_charge), _Lecture_Times(_lecture_days) {}
+	Course() {}
+	Course(string _curriculum, CourseID _course_id, string _course_name, int _credit, string _faculty_in_charge, vector<LectureTime> _lecture_days) :
+		_Curriculum(_curriculum), _Course_ID(_course_id), _Course_Name(_course_name), _Credit(_credit), _Faculty_In_Charge(_faculty_in_charge), _Lecture_Times(_lecture_days) {}
 
-	friend ostream& operator << (ostream& _os, const Course& _line) {		// ì¶œë ¥ ì—°ì‚°ì ì˜¤ë²„ë¡œë”©
-		_os << _line._Curriculum << "," << _line._Course_Number.basic_number << "," << _line._Course_Number.division << "," << _line._Course_Name << "," << _line._Credit << "," << _line._Faculty_In_Charge;
+	friend ostream& operator << (ostream& _os, const Course& _line) {		// Ãâ·Â ¿¬»êÀÚ ¿À¹ö·Îµù
+		_os << _line._Curriculum << "," << _line._Course_ID.basic_id << "," << _line._Course_ID.division << "," << _line._Course_Name << "," << _line._Credit << "," << _line._Faculty_In_Charge;
 		for (auto& _time : _line._Lecture_Times) _os << "," << _time.day << "," << _time.start_time << "," << _time.end_time;
 		return (_os);
 	}
-	friend ofstream& operator << (ofstream& _ofs, const Course& _line) {		// íŒŒì¼ ì¶œë ¥ ì—°ì‚°ì ì˜¤ë²„ë¡œë”©
-		_ofs << _line._Curriculum << "," << _line._Course_Number.basic_number << "," << _line._Course_Number.division << "," << _line._Course_Name << "," << _line._Credit << "," << _line._Faculty_In_Charge;
+	friend ofstream& operator << (ofstream& _ofs, const Course& _line) {		// ÆÄÀÏ Ãâ·Â ¿¬»êÀÚ ¿À¹ö·Îµù
+		_ofs << _line._Curriculum << "," << _line._Course_ID.basic_id << "," << _line._Course_ID.division << "," << _line._Course_Name << "," << _line._Credit << "," << _line._Faculty_In_Charge;
 		for (auto& _time : _line._Lecture_Times) _ofs << "," << _time.day << "," << _time.start_time << "," << _time.end_time;
 		return (_ofs);
 	}
 
 	string Get_Curriculum() { return _Curriculum; }
-	CourseNumber Get_Course_Number() { return _Course_Number; }
+	CourseID Get_Course_ID() { return _Course_ID; }
 	string Get_Course_Name() { return _Course_Name; }
 	int Get_Credit() { return _Credit; }
 	string Get_Faculty_In_Charge() { return _Faculty_In_Charge; }
@@ -72,46 +73,52 @@ public:
 
 class CourseTable
 {
-public: enum InitType { LoadSavedTable, CreateNewTable };	// { ê¸°ì¡´ ë°ì´í„°ë¥¼ ë¶ˆëŸ¬ì˜¤ê¸°, ìƒˆë¡œìš´ ë°ì´í„° ë§Œë“¤ê¸° }
+public: enum InitType { LoadSavedTable, CreateNewTable };	// { ±âÁ¸ µ¥ÀÌÅÍ¸¦ ºÒ·¯¿À±â, »õ·Î¿î µ¥ÀÌÅÍ ¸¸µé±â }
 private:
 	vector<Course> _Course_List;
 	vector<vector<int>> _Course_Adjacent_List;
 	vector<vector<bool>> _Course_Adjacent_Matrix;
-	unordered_map<Course::CourseNumber, int, Course::CourseNumberHash> _CourseNumber_To_CourseIndex;
+	unordered_map<Course::CourseID, int, Course::CourseIDHash> _CourseNumber_To_CourseIndex;
 
 
 public:
 	CourseTable(InitType _init_type = CreateNewTable) :_Course_List(vector<Course>()), _Course_Adjacent_List(vector<vector<int>>()) { _init_type == LoadSavedTable ? Load_Saved_Table() : (Construct_List(), Construct_Adjacent_List()); }
 	~CourseTable() { _Course_List.clear(); _Course_Adjacent_List.clear(); }
 
-	int Get_Course_Index(Course::CourseNumber _course_number) { return _CourseNumber_To_CourseIndex[_course_number]; }
+	int Get_Course_Index(Course::CourseID _course_number) { return _CourseNumber_To_CourseIndex[_course_number]; }
 
-	vector<int>& operator[](int _course_index) { return _Course_Adjacent_List[_course_index]; }													// Course ì¸ë±ìŠ¤ë¡œ Unconflict Courseì°¾ê¸°
-	vector<int>& operator[](Course::CourseNumber _course_number) { return _Course_Adjacent_List[Get_Course_Index(_course_number)]; }				// í•™ìˆ˜ë²ˆí˜¸ë¡œ Unconflict Courseì°¾ê¸°
-	vector<int>& Get_Unconflict_Course(int _course_index) { return _Course_Adjacent_List[_course_index]; }											// Course ì¸ë±ìŠ¤ë¡œ Unconflict Courseì°¾ê¸°
-	vector<int>& Get_Unconflict_Course(Course::CourseNumber _course_number) { return _Course_Adjacent_List[Get_Course_Index(_course_number)]; }	// í•™ìˆ˜ë²ˆí˜¸ë¡œ Unconflict Courseì°¾ê¸°
+	vector<int>& operator[](int _course_index) { return _Course_Adjacent_List[_course_index]; }													// Course ÀÎµ¦½º·Î Unconflict CourseÃ£±â
+	vector<int>& operator[](Course::CourseID _course_number) { return _Course_Adjacent_List[Get_Course_Index(_course_number)]; }				// ÇĞ¼ö¹øÈ£·Î Unconflict CourseÃ£±â
+	vector<int>& Get_Unconflict_Course(int _course_index) { return _Course_Adjacent_List[_course_index]; }											// Course ÀÎµ¦½º·Î Unconflict CourseÃ£±â
+	vector<int>& Get_Unconflict_Course(Course::CourseID _course_number) { return _Course_Adjacent_List[Get_Course_Index(_course_number)]; }	// ÇĞ¼ö¹øÈ£·Î Unconflict CourseÃ£±â
 
-	Course& Get_Course(int _course_index) { return _Course_List[_course_index]; }											// Course ì¸ë±ìŠ¤ë¡œ Courseì°¾ê¸°				
-	Course& Get_Course(Course::CourseNumber _course_number) { return _Course_List[Get_Course_Index(_course_number)]; }		// í•™ìˆ˜ë²ˆí˜¸ë¡œ Courseì°¾ê¸°
+	Course& Get_Course(int _course_index) { return _Course_List[_course_index]; }											// Course ÀÎµ¦½º·Î CourseÃ£±â				
+	Course& Get_Course(Course::CourseID _course_number) { return _Course_List[Get_Course_Index(_course_number)]; }		// ÇĞ¼ö¹øÈ£·Î CourseÃ£±â
 
-	bool Is_Conflict(int _course_index1, int _course_index2) { return !_Course_Adjacent_Matrix[_course_index1][_course_index2]; }		// ë‘ ê³¼ëª©ì´ ì¶©ëŒí•˜ëŠ” ì§€ í™•ì¸
-	bool Is_Conflict(Course::CourseNumber _course_number1, Course::CourseNumber _course_number2) { return !_Course_Adjacent_Matrix[Get_Course_Index(_course_number1)][Get_Course_Index(_course_number2)]; }
+	bool Is_Conflict(int _course_index1, int _course_index2) { return !_Course_Adjacent_Matrix[_course_index1][_course_index2]; }		// µÎ °ú¸ñÀÌ Ãæµ¹ÇÏ´Â Áö È®ÀÎ
+	bool Is_Conflict(Course::CourseID _course_number1, Course::CourseID _course_number2) { return !_Course_Adjacent_Matrix[Get_Course_Index(_course_number1)][Get_Course_Index(_course_number2)]; }
 
+	void Clear() {
+		_Course_List.clear();
+		_Course_Adjacent_List.clear();
+		_Course_Adjacent_Matrix.clear();
+		_CourseNumber_To_CourseIndex.clear();
+	}
 
 private:
-	void Load_Saved_Table()	// ê¸°ì¡´ì— ì €ì¥ëœ íŒŒì¼ë¡œ ë¶€í„° ë°ì´í„°ë¥¼ ë¶ˆëŸ¬ì˜¨ë‹¤ (course_list.csv, unconflict_course.csv)
+	void Load_Saved_Table()	// ±âÁ¸¿¡ ÀúÀåµÈ ÆÄÀÏ·Î ºÎÅÍ µ¥ÀÌÅÍ¸¦ ºÒ·¯¿Â´Ù (course_list.csv, unconflict_course.csv)
 	{
-		util::BroadCast("Course List ë¶ˆëŸ¬ì˜¤ëŠ” ì¤‘...");
+		util::BroadCast("Course List ºÒ·¯¿À´Â Áß...");
 		for (auto& _file_line : CsvManager::Read_Csv("./Documents/course_list.csv", CsvManager::Except, regex(R"(,)"))) {
-			auto _course_number = Course::CourseNumber(_file_line[1], _file_line[2]);
+			auto _course_number = Course::CourseID(_file_line[1], _file_line[2]);
 			auto _lecture_times = vector<Course::LectureTime>();
 			for (int i = 6; i < _file_line.size(); i += 3) _lecture_times.push_back(Course::LectureTime(_file_line[i], stoi(_file_line[i + 1]), stoi(_file_line[i + 2])));
 			_CourseNumber_To_CourseIndex.insert({ _course_number, _Course_List.size() });
 			_Course_List.push_back(Course(_file_line[0], _course_number, _file_line[3], stoi(_file_line[4]), _file_line[5], _lecture_times));
 		}
-		util::BroadCast("\rCourse List ë¶ˆëŸ¬ì˜¤ê¸° ì™„ë£Œ!!\n");
+		util::BroadCast("\rCourse List ºÒ·¯¿À±â ¿Ï·á!!\n");
 
-		util::BroadCast("Course Table ë¶ˆëŸ¬ì˜¤ëŠ” ì¤‘...");
+		util::BroadCast("Course Table ºÒ·¯¿À´Â Áß...");
 		_Course_Adjacent_List.reserve(_Course_List.size()); for (auto& _row : _Course_Adjacent_List) _row.reserve(_Course_List.size());
 		_Course_Adjacent_Matrix.reserve(_Course_List.size()); for (auto& _row : _Course_Adjacent_Matrix) _row.reserve(_Course_List.size());
 
@@ -125,13 +132,13 @@ private:
 			for (auto& _idx : _file_line) _Course_Adjacent_Matrix.back().push_back(stoi(_idx));
 		}
 
-		util::BroadCast("\rCourse Table ë¶ˆëŸ¬ì˜¤ê¸° ì™„ë£Œ!!\n\n");
+		util::BroadCast("\rCourse Table ºÒ·¯¿À±â ¿Ï·á!!\n\n");
 	}
 
-	void Construct_List()	// mDrims ë°ì´í„° íŒŒì¼ì„ ì½ê³  Course Listë¥¼ ìƒˆë¡œ êµ¬ì„±í•œë‹¤
+	void Construct_List()	// mDrims µ¥ÀÌÅÍ ÆÄÀÏÀ» ÀĞ°í Course List¸¦ »õ·Î ±¸¼ºÇÑ´Ù
 	{
-		util::BroadCast("Course List ìƒì„± ì¤‘...");
-		auto _Add_Course = [&](string _file_name) {	// mDrims ë°ì´í„° íŒŒì¼ì„ ì½ê³  Course Listë¥¼ ìƒì„±í•˜ëŠ” í•¨ìˆ˜
+		util::BroadCast("Course List »ı¼º Áß...");
+		auto _Add_Course = [&](string _file_name) {	// mDrims µ¥ÀÌÅÍ ÆÄÀÏÀ» ÀĞ°í Course List¸¦ »ı¼ºÇÏ´Â ÇÔ¼ö
 			for (auto& _file_line : CsvManager::Read_Csv(_file_name, CsvManager::Contain, regex(R"("\S{1,}"|[^,]{1,})"))) {
 				if (_file_line.size() < 6) continue;
 
@@ -145,22 +152,22 @@ private:
 					for (auto& _block : util::Split(_time_part, util::Contain, regex(R"(\d{1,})"))) _lecture_day.push_back(_block);
 					_lecture_times.push_back(Course::LectureTime(_lecture_day[0], stoi(_lecture_day[5]) * 60 + stoi(_lecture_day[6]), stoi(_lecture_day[7]) * 60 + stoi(_lecture_day[8])));
 				}
-				_CourseNumber_To_CourseIndex.insert({ Course::CourseNumber(_course_number[0], _course_number[1]), _Course_List.size() });
-				_Course_List.push_back(Course(_file_line[0], Course::CourseNumber(_course_number[0], _course_number[1]), _course_name, stoi(_file_line[3]), _file_line[4], _lecture_times));
+				_CourseNumber_To_CourseIndex.insert({ Course::CourseID(_course_number[0], _course_number[1]), _Course_List.size() });
+				_Course_List.push_back(Course(_file_line[0], Course::CourseID(_course_number[0], _course_number[1]), _course_name, stoi(_file_line[3]), _file_line[4], _lecture_times));
 			}
 		};
 
 		for (auto& _file_name : vector<string>{ "./Documents/Origin/major.csv" ,"./Documents/Origin/common.csv", "./Documents/Origin/basic.csv" }) _Add_Course(_file_name);
 
 		CsvManager::Write_Csv("./Documents/course_list.csv", _Course_List);
-		util::BroadCast("\rCourse List ìƒì„± ì™„ë£Œ...\n");
+		util::BroadCast("\rCourse List »ı¼º ¿Ï·á...\n");
 	}
 
-	void Construct_Adjacent_List()	// ìƒˆë¡œ êµ¬ì„±ëœ Course Listë¡œ Unconflict Courseë¥¼ êµ¬ì„±í•œë‹¤
+	void Construct_Adjacent_List()	// »õ·Î ±¸¼ºµÈ Course List·Î Unconflict Course¸¦ ±¸¼ºÇÑ´Ù
 	{
-		util::BroadCast("Course Table ìƒì„± ì¤‘...");
-		auto _Is_Conflict = [&](Course& _course_i, Course& _course_j) {	// ë‘ ê³¼ëª©ì˜ ì¶©ëŒ ì—¬ë¶€ (í•™ìˆ˜ë²ˆí˜¸ ì•ìë¦¬, ê°•ì˜ ì‹œê°„)
-			if (_course_i.Get_Course_Number().basic_number == _course_j.Get_Course_Number().basic_number) return true;
+		util::BroadCast("Course Table »ı¼º Áß...");
+		auto _Is_Conflict = [&](Course& _course_i, Course& _course_j) {	// µÎ °ú¸ñÀÇ Ãæµ¹ ¿©ºÎ (ÇĞ¼ö¹øÈ£ ¾ÕÀÚ¸®, °­ÀÇ ½Ã°£)
+			if (_course_i.Get_Course_ID().basic_id == _course_j.Get_Course_ID().basic_id) return true;
 			for (auto& _time_i : _course_i.Get_Lecture_Times())
 				for (auto& _time_j : _course_j.Get_Lecture_Times()) if (_time_i.day == _time_j.day && _time_i.start_time < _time_j.end_time && _time_i.end_time > _time_j.start_time) return true;
 			return false;
@@ -180,12 +187,12 @@ private:
 		}
 		CsvManager::Write_Csv("./Documents/course_adjacent_list.csv", _Course_Adjacent_List);
 		CsvManager::Write_Csv("./Documents/course_adjacent_matrix.csv", _Course_Adjacent_Matrix);
-		util::BroadCast("\rCourse Table ìƒì„± ì™„ë£Œ...\n\n");
+		util::BroadCast("\rCourse Table »ı¼º ¿Ï·á...\n\n");
 	}
 
 
 public:
-	size_t Size() { return _Course_List.size(); }	// Course ê°œìˆ˜ë¥¼ return
+	size_t Size() { return _Course_List.size(); }	// Course °³¼ö¸¦ return
 
 	vector<Course> Get_Course_List() { return _Course_List; }	// return Course List 
 	
