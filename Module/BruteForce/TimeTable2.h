@@ -12,6 +12,10 @@ using namespace std;
 
 class TimeTable2 {
 private:
+	int memory_cnt1 = 0;	// vector<pair<int, int>>
+	int memory_cnt2 = 0;	// int
+	int memory_cnt3 = 0;	// char
+    int memory_cnt4 = 0;    // bool
     double clock_time;
     int compare_cnt;
 public:
@@ -20,10 +24,10 @@ public:
     int credit;
     int table_num = 1;
     int output_num;
-    vector<pair<int, int>> input_courses;   // vector (°ú¸ñ¹øÈ£, ¼±È£µµ)
+    vector<pair<int, int>> input_courses;   // vector (ï¿½ï¿½ï¿½ï¿½ï¿½È£, ï¿½ï¿½È£ï¿½ï¿½)
     vector<int> essential_courses;
-    vector<vector<pair<int, int>>> combi;   // combi ¸ðÀ½
-    vector<vector<pair<int, int>>> result;  // ÃÖÁ¾ °á°ú
+    vector<vector<pair<int, int>>> combi;   // combi ï¿½ï¿½ï¿½ï¿½
+    vector<vector<pair<int, int>>> result;  // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 private:
     bool isVisited[10000] = { false, };
     stack<int> st;
@@ -37,7 +41,7 @@ public:
 };
 
 // =====================================================
-//                  initial ±¸Á¶ ÇÔ¼ö
+//                  initial ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
 // =====================================================
 void TimeTable2::generator(CourseTable& _course_table, bool _print_time_table = true) {
     // INPUT
@@ -46,20 +50,23 @@ void TimeTable2::generator(CourseTable& _course_table, bool _print_time_table = 
     // init CNT
     compare_cnt = 0;
     clock_t start = clock();
+
     // brute-force
     brute_force(_course_table);
     // calculate CLOCK
     clock_t finish = clock();
     clock_time = (double)(finish - start);
 
-    cout << "\n½ÇÇà ½Ã°£: " << clock_time << "ms" << endl;
-    cout << "ºñ±³ È½¼ö: " << compare_cnt << "È¸" << endl;
-    cout << "»ý¼ºµÈ ½Ã°£Ç¥: " << result.size() << "°³" << endl;
+    cout << "\nï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½: " << clock_time << "ms" << endl;
+    cout << "ï¿½ï¿½ È½ï¿½ï¿½: " << compare_cnt << "È¸" << endl;
+    cout << "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½Ç¥: " << result.size() << "ï¿½ï¿½" << endl;
+    cout << "ï¿½Þ¸ï¿½ ï¿½ï¿½ë·®: " << memory_cnt1 * sizeof(pair<int, int>) + memory_cnt2 * sizeof(int) + memory_cnt3 * sizeof(char) + memory_cnt4 * sizeof(bool) << "Byte" << endl;
+
 
     // Pring OUTPUT
     if (_print_time_table) {
         for (int i = 0; i < result.size(); i++) {
-            cout << "\n[ " << "½Ã°£Ç¥" << table_num++ << " ] ";
+            cout << "\n[ " << "ï¿½Ã°ï¿½Ç¥" << table_num++ << " ] ";
             for (int j = 0; j < result[i].size(); j++) {
                 cout << "{" << _course_table.Get_Course(result[i][j].first).Get_Course_Name() << "-" << _course_table.Get_Course(result[i][j].first).Get_Course_ID().division << "} ";
             }
@@ -70,10 +77,10 @@ void TimeTable2::generator(CourseTable& _course_table, bool _print_time_table = 
 }
 
 // =====================================================
-//           »ç¿ëÀÚ¿¡°Ô ¼ö°­ÇÒ °ú¸ñ ÀÔ·Â¹Þ´Â ÇÔ¼ö
+//           ï¿½ï¿½ï¿½ï¿½Ú¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô·Â¹Þ´ï¿½ ï¿½Ô¼ï¿½
 // =====================================================
 void TimeTable2::input_data() {
-    vector<string> message = { "ÇÐÁ¡", "ÇÊ¼ö", "1¼øÀ§", "2¼øÀ§", "3¼øÀ§","4¼øÀ§", "5¼øÀ§", "»ý¼ºÇÒ ½Ã°£Ç¥ °³¼ö" };
+    vector<string> message = { "ï¿½ï¿½ï¿½ï¿½", "ï¿½Ê¼ï¿½", "1ï¿½ï¿½ï¿½ï¿½", "2ï¿½ï¿½ï¿½ï¿½", "3ï¿½ï¿½ï¿½ï¿½","4ï¿½ï¿½ï¿½ï¿½", "5ï¿½ï¿½ï¿½ï¿½", "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½Ç¥ ï¿½ï¿½ï¿½ï¿½" };
     int message_index = 0;
 
     string stringBuffer;
@@ -90,6 +97,7 @@ void TimeTable2::input_data() {
         if (stringBuffer == "-") break;
         input_courses.push_back(make_pair(stoi(stringBuffer), 0));
         input_num++;
+        memory_cnt1++;
     }
     essential_num = input_num;
     cout << message[message_index++] << ": ";
@@ -99,6 +107,7 @@ void TimeTable2::input_data() {
         if (stringBuffer == "-") break;
         input_courses.push_back(make_pair(stoi(stringBuffer), 1));
         input_num++;
+        memory_cnt1++;
     }
     cout << message[message_index++] << ": ";
     cin >> str;
@@ -107,6 +116,7 @@ void TimeTable2::input_data() {
         if (stringBuffer == "-") break;
         input_courses.push_back(make_pair(stoi(stringBuffer), 2));
         input_num++;
+        memory_cnt1++;
     }
     cout << message[message_index++] << ": ";
     cin >> str;
@@ -114,6 +124,8 @@ void TimeTable2::input_data() {
     while (getline(ss3, stringBuffer, ',')) {
         if (stringBuffer == "-") break;
         input_courses.push_back(make_pair(stoi(stringBuffer), 3));
+        input_num++;
+        memory_cnt1++;
     }
     cout << message[message_index++] << ": ";
     cin >> str;
@@ -122,6 +134,7 @@ void TimeTable2::input_data() {
         if (stringBuffer == "-") break;
         input_courses.push_back(make_pair(stoi(stringBuffer), 4));
         input_num++;
+        memory_cnt1++;
     }
     cout << message[message_index++] << ": ";
     cin >> str;
@@ -130,13 +143,14 @@ void TimeTable2::input_data() {
         if (stringBuffer == "-") break;
         input_courses.push_back(make_pair(stoi(stringBuffer), 5));
         input_num++;
+        memory_cnt1++;
     }
     cout << message[message_index++] << ": ";
     cin >> output_num;
 }
 
 // =====================================================
-//       course tableÀÌ conflictÇÏ´ÂÁö Ã¼Å©ÇÏ´Â ÇÔ¼ö
+//       course tableï¿½ï¿½ conflictï¿½Ï´ï¿½ï¿½ï¿½ Ã¼Å©ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½
 // =====================================================
 bool TimeTable2::is_Table_Conflict(CourseTable& _course_table, vector<pair<int, int>>& com_courses) {
     for (int i = 0; i < com_courses.size(); i++) {
@@ -155,6 +169,7 @@ bool TimeTable2::is_Table_Conflict(CourseTable& _course_table, vector<pair<int, 
 
 bool TimeTable2::isMustInclude(vector<pair<int, int>>& arr) {
     int must_cnt = 0;
+    memory_cnt2++;
     for (int i = 0; i < arr.size(); i++) {
         compare_cnt++;
         if (arr[i].second == 0) must_cnt++;
@@ -164,55 +179,62 @@ bool TimeTable2::isMustInclude(vector<pair<int, int>>& arr) {
 }
 
 // =====================================================
-//              Brute Force ½ÃÇàÇÏ´Â ÇÔ¼ö
+//              Brute Force ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½
 // =====================================================
 void TimeTable2::brute_force(CourseTable& _course_table) {
     int now_credit = 0;
     int essential_credit = 0;
+    memory_cnt2 += 2;
     /*for (int i=0; i< input_courses.size(); i++)
         cout <<  input_courses[i].first << " ";
     cout << endl;*/
 
-    // °¡´ÉÇÑ ¸ðµç Á¶ÇÕÀ» »ý¼ºÇÏ´Â ÇÔ¼ö
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½
     vector<pair<int, int>> cmb;
     Combination(cmb, credit / 3, 0, 0);
 
-    // ½Ã°£Ç¥ 
+    // ï¿½Ã°ï¿½Ç¥ 
     bool check = false;
+    memory_cnt4++;
     for (int i = 0; i < combi.size(); i++) {
         if (is_Table_Conflict(_course_table, combi[i]) == false && isMustInclude(combi[i]) == true) {
             result.push_back(combi[i]);
+            memory_cnt1++;
         }
     }
 }
 
 /**
 // =====================================================
-//  Combination ¹ÞÀº ¼ö¾÷µé·Î ¸ðµç °æ¿ìÀÇ ¼ö¸¦ Ãâ·ÂÇÏ´Â ÇÔ¼ö
+//  Combination ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½
 // =====================================================
- arr = ´ë»ó ¹è¿­           comb = Ãâ·Â ¹è¿­
- r = ³²Àº »Ì¾Æ¾ß ÇÒ °¹¼ö    index = comb ÀÇ ÀÎµ¦½º
- depth = ´ë»ó ¹è¿­¿¡¼­ »ÌÀ» ¿ø¼Ò¸¦ °áÁ¤ÇÏ´Â ÀÎµ¦½º
+ arr = ï¿½ï¿½ï¿½ ï¿½è¿­           comb = ï¿½ï¿½ï¿½ ï¿½è¿­
+ r = ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¾Æ¾ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½    index = comb ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½
+ depth = ï¿½ï¿½ï¿½ ï¿½è¿­ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ò¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Îµï¿½ï¿½ï¿½
  */
-void TimeTable2::Combination(vector<pair<int, int>>& cmb, int r, int index, int depth) { // depth == Á¡È­½ÄÀÇ n¿ªÇÒ
+void TimeTable2::Combination(vector<pair<int, int>>& cmb, int r, int index, int depth) { // depth == ï¿½ï¿½È­ï¿½ï¿½ï¿½ï¿½ nï¿½ï¿½ï¿½ï¿½
     compare_cnt++;
-    if (r == 0) { // »Ì¾Æ¾ßÇÒ °¹¼ö°¡ ¸ðµÎ Âù °æ¿ì¿¡´Â comb ¿¡ µé¾îÀÖ´Â °ª ¸ðµÎ Ãâ·Â
+    if (r == 0) { // ï¿½Ì¾Æ¾ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ì¿¡ï¿½ï¿½ comb ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
         combi.push_back(cmb);
+        memory_cnt1++;
         cmb.pop_back();
     }
-    else if (depth == input_courses.size()) {   // »ÌÀ» ¿ø¼Ò ÀÎµ¦½º°¡ ´ë»ó ¹è¿­ÀÇ ¸¶Áö¸·±îÁö ¿Â °æ¿ì return
+    else if (depth == input_courses.size()) {   // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½è¿­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ return
         return;
     }
     else {
-        // arr[depth] ¸¦ »ÌÀº °æ¿ì
-        if (cmb.size() <= index) cmb.push_back(make_pair(input_courses[depth].first, input_courses[depth].second));
+        // arr[depth] ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+        if (cmb.size() <= index) {
+            cmb.push_back(make_pair(input_courses[depth].first, input_courses[depth].second));
+            memory_cnt1++;
+        }
         else {
             cmb[index].first = input_courses[depth].first;
             cmb[index].second = input_courses[depth].second;
         }
-        Combination(cmb, r - 1, index + 1, depth + 1); // n-1Cr-1: Æ¯Á¤ ¿ø¼Ò¸¦ »ÌÀº °æ¿ì
+        Combination(cmb, r - 1, index + 1, depth + 1); // n-1Cr-1: Æ¯ï¿½ï¿½ ï¿½ï¿½ï¿½Ò¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 
-        // arr[depth] ¸¦ »ÌÁö ¾ÊÀº °æ¿ì
-        Combination(cmb, r, index, depth + 1); // n-1Cr: Æ¯Á¤ ¿ø¼Ò¸¦ »ÌÁö ¾ÊÀº °æ¿ì
+        // arr[depth] ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+        Combination(cmb, r, index, depth + 1); // n-1Cr: Æ¯ï¿½ï¿½ ï¿½ï¿½ï¿½Ò¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
     }
 }
