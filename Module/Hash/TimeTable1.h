@@ -3,7 +3,7 @@
 
 #include "../../Core/Course.h"
 #include "../../Core/Utility.h"
-#include<sstream>
+#include <sstream>
 #include <tuple>
 #include <queue>
 #include <algorithm>
@@ -14,25 +14,27 @@ using namespace std;
 class TimeTable1
 {
 public:
+	typedef long long lint;
 	int essential_cnt;
 	int input_cnt;
 	int credit;
 	int table_num = 1;
+	int make_cnt = 0;
 	int output_num;
 	int cmp_cnt = 0;
-	vector<tuple <int, int>> input_courses;	// ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô·ï¿½ courses list => (int ï¿½ï¿½ï¿½ï¿½ï¿½È£, int ï¿½ï¿½È£ï¿½ï¿½)
-	vector<int> essential_courses;			// ï¿½Ê¼ï¿½ ï¿½ï¿½ï¿½ï¿½ list => (int ï¿½ï¿½ï¿½ï¿½ï¿½È£)
-	vector<int> accumulate_courses;			// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ list
-	vector<string> final_courses;			// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Â¿ï¿½ list
+	vector<tuple <int, int>> input_courses;	// »ç¿ëÀÚ ÀÔ·Â courses list => (int °ú¸ñ¹øÈ£, int ¼±È£µµ)
+	vector<int> essential_courses;			// ÇÊ¼ö °ú¸ñ list => (int °ú¸ñ¹øÈ£)
+	vector<int> accumulate_courses;			// ´©Àû °ú¸ñ list
+	vector<string> final_courses;			// ÃÖÁ¾ Ãâ·Â¿ë list
 
 
-	int mcnt1 = 0;	// input_courses
-	int mcnt2 = 0;	// essential_courses
-	int mcnt3 = 0;	// accumulate_courses
-	int mcnt4 = 0;	// final_courses
+	lint mcnt1 = 0;	// input_courses
+	lint mcnt2 = 0;	// essential_courses
+	lint mcnt3 = 0;	// accumulate_courses
+	lint mcnt4 = 0;	// final_courses
 
 	void generator(CourseTable& _course_table, bool _print_time_table) {
-		vector<string> message = { "ï¿½ï¿½ï¿½ï¿½", "ï¿½Ê¼ï¿½", "1ï¿½ï¿½ï¿½ï¿½", "2ï¿½ï¿½ï¿½ï¿½", "3ï¿½ï¿½ï¿½ï¿½","4ï¿½ï¿½ï¿½ï¿½", "5ï¿½ï¿½ï¿½ï¿½", "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½Ç¥ ï¿½ï¿½ï¿½ï¿½" };
+		vector<string> message = { "ÇÐÁ¡", "ÇÊ¼ö", "1¼øÀ§", "2¼øÀ§", "3¼øÀ§","4¼øÀ§", "5¼øÀ§", "»ý¼ºÇÒ ½Ã°£Ç¥ °³¼ö" };
 		int message_index = 0;
 		cout << message[message_index++] << ": ";
 		cin >> credit;
@@ -41,15 +43,15 @@ public:
 
 		clock_t start, finish;
 		start = clock();
-
-		if (Check_Essential_Conflict(_course_table) == 1)	// essential ï¿½ï¿½ï¿½ï¿½ ï¿½æµ¹ Ã¼Å©
-			HashFunctoin(_course_table);					// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Hash
+		if (Check_Essential_Conflict(_course_table) == 1)	// essential °ú¸ñ Ãæµ¹ Ã¼Å©
+			HashFunctoin(_course_table);					// ³ª¸ÓÁö Hash
 		finish = clock();
+
+		cout << "\n½ÇÇà ½Ã°£: " << finish - start << "ms" << endl;
+		cout << "ºñ±³ È½¼ö: " << cmp_cnt << "È¸" << endl;
+		cout << "¸Þ¸ð¸® »ç¿ë·®: " << (double)(mcnt1 * sizeof(tuple<int, int>) + mcnt2 * sizeof(int) + mcnt3 * sizeof(int) + mcnt4 * sizeof(char)) / (double)125000 << "mb" << endl;
+		cout << "»ý¼ºµÈ ½Ã°£Ç¥: " << final_courses.size() << "°³" << endl << endl;
 		if (_print_time_table) print_total_table();
-		cout << "\nï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½: " << finish - start << "ms" << endl;
-		cout << "ï¿½ï¿½ È½ï¿½ï¿½: " << cmp_cnt << "È¸" << endl;
-		cout << "ï¿½Þ¸ï¿½ ï¿½ï¿½ë·®: " << mcnt1 * sizeof(tuple<int, int>) + mcnt2 * sizeof(int) + mcnt3 * sizeof(int) + mcnt4 * sizeof(char) << "Byte" << endl;
-		cout << "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½Ç¥: " << final_courses.size() << "ï¿½ï¿½" << endl;
 	}
 
 	// main function
@@ -58,7 +60,7 @@ public:
 		int essential_credit = 0;
 		int now_print_num = 0;
 
-		// accumulate_courses ï¿½Ê±ï¿½È­
+		// accumulate_courses ÃÊ±âÈ­
 		for (int i = 0; i < essential_cnt; i++) {
 			accumulate_courses.push_back(get<0>(input_courses[i]));
 			mcnt3++;
@@ -66,22 +68,22 @@ public:
 			essential_credit += 3;
 		}
 
-		// ï¿½ï¿½ï¿½ï¿½ creditï¿½ï¿½ essentialï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñµï¿½ ï¿½æµ¹ï¿½Ï¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã³ï¿½ï¿½ ï¿½Øµï¿½.
-		// ï¿½ï¿½ï¿½ï¿½ creditï¿½ï¿½ essentialï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´Ù¸ï¿½ ï¿½Ï³ï¿½ï¿½Û¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½, ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½Ù·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.
+		// ¸¸¾à credit°ú essentialÀÌ µ¿ÀÏÇÑµ¥ Ãæµ¹ÇÏ¸é À§¿¡¼­ ¿¹¿ÜÃ³¸® ÇØµÒ.
+		// ¸¸¾à credit°ú essentialÀÌ µ¿ÀÏÇÏ´Ù¸é ÇÏ³ª¹Û¿¡ ¾øÀ¸¹Ç·Î, Ãâ·ÂÇÏ°í ¹Ù·Î Á¾·áÇÔ.
 		if (now_credit == credit) {
 			add_total_table(_course_table, accumulate_courses);
 			return 0;
 		}
-		else if (now_credit >= credit) {		// now_credit >= credit ï¿½ï¿½ï¿½ ï¿½ß°ï¿½ï¿½Ï±ï¿½
-			cout << "ï¿½Ê¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½." << endl;
+		else if (now_credit >= credit) {		// now_credit >= credit °æ¿ì Ãß°¡ÇÏ±â
+			cout << "ÇÊ¼ö °ú¸ñÀÌ ÀÔ·ÂÇÑ ÇÐÁ¡º¸´Ù ¸¹½À´Ï´Ù." << endl;
 			return 0;
 		}
 
-		// Is_Course_Conflict ï¿½ï¿½ ï¿½Ú¿ï¿½ conflict ï¿½È³ï¿½ï¿½ï¿½ ï¿½ß°ï¿½ï¿½ï¿½.
+		// Is_Course_Conflict ÇÑ µÚ¿¡ conflict ¾È³ª¸é Ãß°¡ÇÔ.
 		MakingTable(_course_table, accumulate_courses, essential_cnt, essential_credit);
 	}
 
-	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Table È®ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½
+	// °¡´ÉÇÑ Table È®ÀÎÇÏ´Â ÇÔ¼ö
 	void MakingTable(CourseTable& _course_table, vector<int> _accumulate_courses, int currnet_index, int _now_credit) {
 		for (int i = currnet_index; i < input_cnt; i++) {
 			auto nowC = _course_table.Get_Course(get<0>(input_courses[i]));
@@ -102,7 +104,7 @@ public:
 		}
 	}
 
-	// essential ï¿½ï¿½ï¿½ñ¿¡¼ï¿½ conflictï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã¼Å©ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½ => conflict ï¿½ß»ï¿½ï¿½ï¿½ ï¿½Ù·ï¿½ ï¿½ï¿½ï¿½ï¿½
+	// essential °ú¸ñ¿¡¼­ conflict³ª´ÂÁö Ã¼Å©ÇÏ´Â ÇÔ¼ö => conflict ¹ß»ý½Ã ¹Ù·Î Á¾·á
 	int Check_Essential_Conflict(CourseTable& _course_table) {
 		for (int i = 0; i < essential_cnt; i++) {
 			auto c1 = _course_table.Get_Course(get<0>(input_courses[i])).Get_Course_ID();
@@ -110,7 +112,7 @@ public:
 				auto c2 = _course_table.Get_Course(get<0>(input_courses[j])).Get_Course_ID();
 				++cmp_cnt;
 				if (_course_table.Is_Conflict(c1, c2)) {
-					cout << "ï¿½Ê¼ï¿½ ï¿½ï¿½ï¿½ï¿½" << c1.basic_id << "ï¿½ï¿½ " << c2.basic_id << "ï¿½ï¿½ ï¿½æµ¹ï¿½Ï¿ï¿½ ï¿½Ã°ï¿½Ç¥ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½." << endl;
+					cout << "ÇÊ¼ö °ú¸ñ" << c1.basic_id << "°ú " << c2.basic_id << "°¡ Ãæµ¹ÇÏ¿© ½Ã°£Ç¥°¡ Á¸ÀçÇÒ ¼ö ¾ø½À´Ï´Ù." << endl;
 					return 0;
 				}
 			}
@@ -118,7 +120,7 @@ public:
 		return 1;
 	}
 
-	// ï¿½ï¿½ï¿½ï¿½ course(accumulate)ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô·ï¿½ï¿½ï¿½ courseï¿½ï¿½ conflictï¿½ï¿½ï¿½ï¿½ Ã¼Å©ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½
+	// ´©Àû course(accumulate)°ú ÇöÀç ÀÔ·ÂÇÑ course°¡ conflictÇÑÁö Ã¼Å©ÇÏ´Â ÇÔ¼ö
 	bool Is_Course_Conflict(CourseTable& _course_table, vector<int> _accumulate_courses, Course& c) {
 		auto c1 = c.Get_Course_ID();
 		for (int i = 0; i < _accumulate_courses.size(); i++) {
@@ -132,9 +134,9 @@ public:
 		return false;
 	}
 
-	// ï¿½ï¿½ï¿½ï¿½Ú¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô·Â¹Þ´ï¿½ ï¿½Ô¼ï¿½
+	// »ç¿ëÀÚ¿¡°Ô °ú¸ñ ÀÔ·Â¹Þ´Â ÇÔ¼ö
 	void input_data() {
-		vector<string> message = { "ï¿½ï¿½ï¿½ï¿½", "ï¿½Ê¼ï¿½", "1ï¿½ï¿½ï¿½ï¿½", "2ï¿½ï¿½ï¿½ï¿½", "3ï¿½ï¿½ï¿½ï¿½","4ï¿½ï¿½ï¿½ï¿½", "5ï¿½ï¿½ï¿½ï¿½", "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½Ç¥ ï¿½ï¿½ï¿½ï¿½" };
+		vector<string> message = { "ÇÐÁ¡", "ÇÊ¼ö", "1¼øÀ§", "2¼øÀ§", "3¼øÀ§","4¼øÀ§", "5¼øÀ§", "»ý¼ºÇÒ ½Ã°£Ç¥ °³¼ö" };
 		int message_index = 1;
 
 		string stringBuffer;
@@ -214,28 +216,31 @@ public:
 		essential_cnt = essential_courses.size();
 	}
 
-	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ timetable ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½	
+	// »ý¼ºµÈ timetable ÀúÀåÇÏ´Â ÇÔ¼ö	
 	void add_total_table(CourseTable& _course_table, vector<int> _accumulate_courses) {
-		string tmp_str = string("[ ") + "ï¿½Ã°ï¿½Ç¥" + to_string(table_num) + " ] ";
-		table_num++;
+		if (make_cnt++ < output_num)
+		{
+			string tmp_str = string("[ ") + "½Ã°£Ç¥" + to_string(table_num) + " ] ";
+			table_num++;
 
-		for (int i = 0; i < _accumulate_courses.size(); i++) {
-			tmp_str += "{" + _course_table.Get_Course(_accumulate_courses[i]).Get_Course_Name() + "-" + _course_table.Get_Course(_accumulate_courses[i]).Get_Course_ID().division + "} ";
+			for (int i = 0; i < _accumulate_courses.size(); i++) {
+				tmp_str += "{" + _course_table.Get_Course(_accumulate_courses[i]).Get_Course_Name() + "-" + _course_table.Get_Course(_accumulate_courses[i]).Get_Course_ID().division + "} ";
+			}
+			final_courses.push_back(tmp_str);
+			mcnt4 += tmp_str.size();
 		}
-		final_courses.push_back(tmp_str);
-		mcnt4 += tmp_str.size();
 	}
 
-	// ï¿½ï¿½ï¿½ï¿½ table listï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½
+	// ÃÖÁ¾ table list¸¦ Ãâ·ÂÇÏ´Â ÇÔ¼ö
 	void print_total_table() {
-		for (int i = 0; i < final_courses.size(); i++) {
-			cout << final_courses[i] << endl;
-		}
+		if (final_courses.empty())final_courses.push_back("ÇØ´ç InputÀ¸·Î »ý¼ºÇÒ ¼ö ÀÖ´Â ½Ã°£Ç¥°¡ ¾ø½À´Ï´Ù!");
+		cout << "\n½Ã°£Ç¥°¡ \'./Documents/TimeTable/Hash.csv\'¿¡ ÀúÀåµÇ¾ú½À´Ï´Ù" << '\n';
+		CsvManager::Write_Csv("./Documents/TimeTable/Hash.csv", final_courses);
 	}
 
-	// ï¿½×½ï¿½Æ®ï¿½ï¿½: accumulate_courses ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½
+	// Å×½ºÆ®¿ë: accumulate_courses Ãâ·ÂÇÏ´Â ÇÔ¼ö
 	void print_accumulate_courses() {
-		cout << "<<accumulate_courses ï¿½ï¿½ï¿½>>" << endl;
+		cout << "<<accumulate_courses Ãâ·Â>>" << endl;
 		cout << "size: " << accumulate_courses.size() << endl;
 		for (int i = 0; i < accumulate_courses.size(); i++) {
 			cout << accumulate_courses[i] << " ";
@@ -243,9 +248,9 @@ public:
 		cout << endl;
 	}
 
-	// ï¿½×½ï¿½Æ®ï¿½ï¿½: input_courses ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½
+	// Å×½ºÆ®¿ë: input_courses Ãâ·ÂÇÏ´Â ÇÔ¼ö
 	void print_input_courses() {
-		cout << "<<input_courses ï¿½ï¿½ï¿½>>" << endl;
+		cout << "<<input_courses Ãâ·Â>>" << endl;
 		cout << "size: " << input_cnt << endl;
 		for (int i = 0; i < input_courses.size(); i++) {
 			cout << get<0>(input_courses[i]) << "(" << get<1>(input_courses[i]) << ") ";
@@ -253,9 +258,9 @@ public:
 		cout << endl;
 	}
 
-	// ï¿½×½ï¿½Æ®ï¿½ï¿½: essential_courses ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½
+	// Å×½ºÆ®¿ë: essential_courses Ãâ·ÂÇÏ´Â ÇÔ¼ö
 	void print_essential_courses() {
-		cout << "<<essential_courses ï¿½ï¿½ï¿½>>" << endl;
+		cout << "<<essential_courses Ãâ·Â>>" << endl;
 		cout << "size: " << essential_cnt << endl;
 		for (int i = 0; i < essential_courses.size(); i++) {
 			cout << essential_courses[i] << " ";

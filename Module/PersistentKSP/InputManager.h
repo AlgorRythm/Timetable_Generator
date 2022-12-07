@@ -41,7 +41,7 @@ private:
 
 public:
 	static bool Get_Input(CourseTable &course_table, int& number_of_course, int& number_of_essential, int& number_of_timetable, Bits& common_conflict
-		, vector<Bits>& course_conflict, vector<WeightType>& course_weight, vector<Course>& course_info, int& target_credit)
+		, vector<Bits>& course_conflict, vector<WeightType>& course_weight, vector<Course>& course_info, int& target_credit, int& compare_cnt)
 	{
 		vector<Integer> x_value(5, 1);
 		for (int i = 1; i < 5; i++) x_value[i] = x_value[i - 1] * 100;
@@ -61,7 +61,7 @@ public:
 			if (course_lank[i] == -1) { number_of_essential++; course_weight[i] = -1; }
 			else course_weight[i] = Lank_To_Weight(course_lank[i]);
 			for (int j = i + 1; j <= number_of_course; j++) {
-				if (course_table.Is_Conflict(course_index[i], course_index[j])) {
+				if (++compare_cnt, course_table.Is_Conflict(course_index[i], course_index[j])) {
 					course_conflict[i] |= ((Bits)1 << j);
 					course_conflict[j] |= ((Bits)1 << i);
 				}
@@ -72,15 +72,15 @@ public:
 		common_conflict = (Bits)0;
 		for (int i = 1; i <= number_of_course; i++) {	// 필수 과목 끼리의 충돌 여부 확인
 			if (course_lank[i] == -1) {
-				if (!(common_conflict & ((Bits)1 << i))) common_conflict |= course_conflict[i];
+				if (++compare_cnt, !(common_conflict & ((Bits)1 << i))) common_conflict |= course_conflict[i];
 				else essential_conflict = true;
 			}
 		}
 
-		/*for (int i = 1; i <= number_of_course; i++)	// 필수 과목과 충돌하는 과목
+		for (int i = 1; i <= number_of_course; i++)	// 필수 과목과 충돌하는 과목
 			if (course_lank[i] != -1) course_conflict[i] |= common_conflict;
 
-		cout << "\n[필수 과목]" << (number_of_essential == 0 ? "\n- 필수로 선택해야하는 과목이 없음" : "") << '\n';
+		/*cout << "\n[필수 과목]" << (number_of_essential == 0 ? "\n- 필수로 선택해야하는 과목이 없음" : "") << '\n';
 		for (int i = 1; i <= number_of_course; i++)
 			if (course_lank[i] == -1) cout << course_info[i] << '\n';
 
@@ -90,36 +90,10 @@ public:
 
 		cout << "\n[선택 불가능한 일반 과목 (필수 과목과 겹침)]" << '\n';
 		for (int i = 1; i <= number_of_course; i++)
-			if (course_lank[i] != -1 && (common_conflict & ((Bits)1 << i))) cout << course_info[i] << '\n';
+			if (course_lank[i] != -1 && (common_conflict & ((Bits)1 << i))) cout << course_info[i] << '\n';*/
 
-		if (essential_conflict) { cout << "\n\"잘못된 입력: 필수 과목을 모두 선택할 수 없습니다!!\"" << '\n'; return false; }*/
+		if (essential_conflict) { cout << "\n\"잘못된 입력: 필수 과목 사이에서 시간이 겹칩니다!!\"" << '\n'; return false; }
 
 		return true;
 	}	
 };
-
-
-
-
-/*static void Input_Type1(CourseTable& course_table, int& target_credit, int& number_of_timetable, vector<int>& course_index, vector<int>& course_lank, vector<Course>& course_info)	// 과목을 학수번호로 입력 받음
-{
-	istringstream sin;
-	string string_buffer;
-
-	//cout << "목표 학점을 입력하세요: ";
-	cin >> target_credit;
-	cin.ignore();
-	for (int lank = -1; lank < 5; lank++) {
-		getline(cin, string_buffer);
-		for (auto& item : util::Split(string_buffer, util::Except, regex(R"(,)"))) {
-			auto id = Course::CourseID(item);
-			course_index.push_back(course_table.Get_Course_Index(id));
-			course_lank.push_back(lank);
-			course_info.push_back(course_table.Get_Course(id));
-		}
-	}
-	cin.ignore();
-	cin >> number_of_timetable;
-
-	cout << "2414" << '\n';
-}*/

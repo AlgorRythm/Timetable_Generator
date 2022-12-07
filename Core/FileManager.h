@@ -62,6 +62,7 @@ public:
 			_ofs.close();
 			return true;
 		}
+		cout << _file_name;
 		return false;
 	}
 };

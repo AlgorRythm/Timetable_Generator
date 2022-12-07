@@ -13,6 +13,7 @@ class PersistentHeap	// 퍼시스턴트 Heap (Sink -> Source로 역방향 Dijkstra를 구한
 {
 public:
 	using ValueType = long long;
+	using Integer = long long;
 
 	struct Node {
 		Node* son[2];
@@ -23,13 +24,10 @@ public:
 		Node(Node* _left_son, Node* _right_son, ValueType _value, int _curr_vertex, int _next_vertex) : value(_value), curr_vertex(_curr_vertex), next_vertex(_next_vertex) { son[0] = _left_son; son[1] = _right_son; }
 	};
 
-
-
 private:
 	size_t _Size_Of_Heap_Table;
 	vector<Node*> _Heap_Table;
-
-
+	Integer _Memory_Cnt = 0;
 
 public:
 	PersistentHeap() :PersistentHeap(0) {}
@@ -42,18 +40,26 @@ public:
 		_Heap_Table.assign(_size, (Node*)nullptr);
 	}
 
-	void Searching(int _index) {
+	Integer Get_Memeory() {
+		Searching(0, false);
+		return _Memory_Cnt;
+	}
+
+	void Searching(int _index, bool _print = true) {
 		function<void(Node*, int)> _Searching_Sub = [&](Node* _curr, int _depth) {
 			if (_curr == NULL) return;
-			for (int i = 0; i < _depth; i++) cout << "      ";
-			cout << _curr->curr_vertex << " -> " << _curr->next_vertex << " delay: " << _curr->value << '\n';
+
+			_Memory_Cnt += sizeof(Node);
+			if (_print) {
+				for (int i = 0; i < _depth; i++) cout << "      ";
+				cout << _curr->curr_vertex << " -> " << _curr->next_vertex << " delay: " << _curr->value << '\n';
+			}
+
 			for (int i = 0; i < 2; i++) _Searching_Sub(_curr->son[i], _depth + 1);
 			_Searching_Sub(_Heap_Table[_curr->next_vertex], _depth + 1);
 		};
 		_Searching_Sub(_Heap_Table[_index], 0);
 	}
-
-
 
 public:
 	static Node* NodeCopy(Node* _node) {

@@ -60,6 +60,7 @@ public:
 		return (_ofs);
 	}
 
+
 	string Get_Curriculum() { return _Curriculum; }
 	CourseID Get_Course_ID() { return _Course_ID; }
 	string Get_Course_Name() { return _Course_Name; }

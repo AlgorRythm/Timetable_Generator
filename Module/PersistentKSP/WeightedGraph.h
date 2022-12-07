@@ -41,11 +41,13 @@ private:
 	size_t _Size_Of_Graph, _Number_Of_Edge;			// 간선 개수(간선 넘버링할 때 활용)
 	vector<vector<Edge>> _Graph, _Reverse_Graph;	// 그래프, 역방향 그래프(Sink -> Source로 역방향 Dijkstra를 구한 뒤 Persistent Heap으로 관리)
 
-	vector<int> _Prev_Vertex, _Prev_Edge, _Used_Vertex;			// Reverse Graph의 	
+	vector<int> _Prev_Vertex, _Prev_Edge, _Used_Vertex;	
 	vector<WeightType> _Distance;		
 
 	vector<PathState> _Suffix_State_List;
 	vector<int> _Suffix_Path_List;
+
+	Integer _Memory_Cnt = 0;
 
 
 public:
@@ -66,7 +68,18 @@ public:
 		_Number_Of_Edge++;
 	}
 
-
+	Integer Get_Memeory() {
+		for (auto& _edge_list : _Graph) _Memory_Cnt += _edge_list.size() * sizeof(Edge);
+		for (auto& _edge_list : _Reverse_Graph) _Memory_Cnt += _edge_list.size() * sizeof(Edge);
+		_Memory_Cnt += _Prev_Vertex.size() * sizeof(int);
+		_Memory_Cnt += _Prev_Edge.size() * sizeof(int);
+		_Memory_Cnt += _Used_Vertex.size() * sizeof(int);
+		_Memory_Cnt += _Distance.size() * sizeof(WeightType);
+		_Memory_Cnt += _Suffix_State_List.size() * sizeof(PathState);
+		_Memory_Cnt += _Suffix_Path_List.size() * sizeof(int);
+		_Memory_Cnt += _Persistent_Heap.Get_Memeory();
+		return _Memory_Cnt;
+	}
 
 private:
 	void Reverse_Dijkstra(int _sink)	// 역방향(Sink -> Source) Dijkstra 수행 
